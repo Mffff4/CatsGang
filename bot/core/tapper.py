@@ -129,18 +129,57 @@ class BaseBot:
                 proxies=proxy_settings
             )
 
-        try:
-            full_url = f"{BASE_URL}{url}"
-            response = await getattr(self._http_client, method.lower())(full_url, **kwargs)
-            if response.status_code == 200:
-                return response.json()
-            if not (response.status_code == 404 and url == "/user"):
-                logger.error(f"{self.session_name} | Request failed with status {response.status_code}")
-            return None
-        except Exception as e:
-            logger.error(f"{self.session_name} | Request error: {str(e)}")
-            return None
+        max_retries = 3
+        retry_delay = 5
 
+        for attempt in range(max_retries):
+            try:
+                full_url = f"{BASE_URL}{url}"
+                response = await getattr(self._http_client, method.lower())(full_url, **kwargs)
+                
+                if response.status_code == 200:
+                    return response.json()
+                    
+                if response.status_code == 404 and url == "/user":
+                    return None
+                    
+                if response.status_code in [502, 503, 504]:
+                    logger.warning(
+                        f"{self.session_name} | Server temporarily unavailable (HTTP {response.status_code}). "
+                        f"Attempt {attempt + 1}/{max_retries}"
+                    )
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(retry_delay)
+                        continue
+                        
+                logger.error(
+                    f"{self.session_name} | Request failed with error {response.status_code}"
+                )
+                return None
+                
+            except Exception as e:
+                error_message = str(e)
+                
+                if "curl: (55)" in error_message:
+                    logger.warning(
+                        f"{self.session_name} | Connection reset (CURL 55). "
+                        f"Attempt {attempt + 1}/{max_retries}"
+                    )
+                elif "curl: (28)" in error_message:
+                    logger.warning(
+                        f"{self.session_name} | Operation timeout (CURL 28). "
+                        f"Attempt {attempt + 1}/{max_retries}"
+                    )
+                else:
+                    logger.error(f"{self.session_name} | Request error: {error_message}")
+                
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(retry_delay)
+                    continue
+                    
+                return None
+
+        return None
     async def run(self) -> None:
         if not await self.initialize_session():
             return
