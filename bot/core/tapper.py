@@ -304,6 +304,7 @@ class BaseBot:
 {"id": 612, "answer": "CRYPTOGRAPH"},
 {"id": 613, "answer": "CRYPTOJACKING"},
 {"id": 614, "answer": "CRYPTOLOGY"},
+{"id": 616, "answer": "СORRECTION"}
 ]
 
                         try:
