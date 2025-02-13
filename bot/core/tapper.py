@@ -151,10 +151,11 @@ class BaseBot:
                     if attempt < max_retries - 1:
                         await asyncio.sleep(retry_delay)
                         continue
-                        
-                logger.error(
-                    f"{self.session_name} | Request failed with error {response.status_code}"
-                )
+                
+                if url != "/user/avatar/upgrade":  
+                    logger.error(
+                        f"{self.session_name} | Request failed with error {response.status_code}"
+                    )
                 return None
                 
             except Exception as e:
@@ -279,25 +280,31 @@ class BaseBot:
                         type_ = 'check' if task_type == 'SUBSCRIBE_TO_CHANNEL' else 'complete'
 
                         youtube_answers = [
-                        {"id": 141, "answer": "dildo"},
-                        {"id": 146, "answer": "dip"},
-                        {"id": 148, "answer": "AIRNODE"},
-                        {"id": 149, "answer": "WEI"},
-                        {"id": 153, "answer": "ABSTRACT"},
-                        {"id": 154, "answer": "AUCTION"},
-                        {"id": 155, "answer": "AUDIT"},
-                        {"id": 158, "answer": "BAG"},
-                        {"id": 159, "answer": "BAG"},
-                        {"id": 160, "answer": "ALTCOIN"},
-                        {"id": 161, "answer": "BAKING"},
-                        {"id": 162, "answer": "ALPHA"},
-                        {"id": 163, "answer": "BAKERS"},
-                        {"id": 604, "answer": "DIFFICULTY"},
-                        {"id": 605, "answer": "COLLATERAL"},
-                        {"id": 606, "answer": "CONSENSUS"},
-                        {"id": 607, "answer": "DISCORD"},
-                        {"id": 608, "answer": "DOLPHIN"},
-                        ]
+{"id": 141, "answer": "dildo"},
+{"id": 146, "answer": "dip"},
+{"id": 148, "answer": "AIRNODE"},
+{"id": 149, "answer": "WEI"},
+{"id": 153, "answer": "ABSTRACT"},
+{"id": 154, "answer": "AUCTION"},
+{"id": 155, "answer": "AUDIT"},
+{"id": 158, "answer": "BAG"},
+{"id": 159, "answer": "BAG"},
+{"id": 160, "answer": "ALTCOIN"},
+{"id": 161, "answer": "BAKING"},
+{"id": 162, "answer": "ALPHA"},
+{"id": 163, "answer": "BAKERS"},
+{"id": 604, "answer": "DIFFICULTY"},
+{"id": 605, "answer": "COLLATERAL"},
+{"id": 606, "answer": "CONSENSUS"},
+{"id": 607, "answer": "DISCORD"},
+{"id": 608, "answer": "DOLPHIN"},
+{"id": 609, "answer": "CENSORSHIP"},
+{"id": 610, "answer": "CHANGE"},
+{"id": 611, "answer": "CASHTOKEN"},
+{"id": 612, "answer": "CRYPTOGRAPH"},
+{"id": 613, "answer": "CRYPTOJACKING"},
+{"id": 614, "answer": "CRYPTOLOGY"},
+]
 
                         try:
                             if task_type == 'SUBSCRIBE_TO_CHANNEL':
@@ -416,6 +423,13 @@ class BaseBot:
                             response = await self.make_request('POST', "/user/avatar/upgrade", data=form_data, headers=headers)
                             if response:
                                 return response.get('rewards', 0)
+                            else:  
+                                sleep_time = uniform(10800, 14400)
+                                hours = int(sleep_time/3600)
+                                next_attempt = (datetime.now(timezone.utc) + timedelta(seconds=sleep_time)).strftime("%H:%M:%S")
+                                logger.info(f"{self.session_name} | Next upload attempt at {next_attempt} UTC (in {hours} hours)")
+                                await asyncio.sleep(sleep_time)
+                                return None
                             break
                         
                     except Exception as e:
