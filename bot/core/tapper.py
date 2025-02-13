@@ -297,6 +297,12 @@ class BaseBot:
                         {"id": 606, "answer": "CONSENSUS"},
                         {"id": 607, "answer": "DISCORD"},
                         {"id": 608, "answer": "DOLPHIN"},
+                        {"id": 609, "answer": "CENSORSHIP"},
+                        {"id": 610, "answer": "CHANGE"},
+                        {"id": 611, "answer": "CRYPTOASSET"},
+                        {"id": 612, "answer": "CRYPTOGRAPHY"},
+                        {"id": 613, "answer": "CRYPTOJACKING"},
+                        {"id": 614, "answer": "CRYPTOLOGY"},
                         ]
 
                         try:
